@@ -1,0 +1,126 @@
+<main class="container">
+  <header class="hero">
+    <div class="logo">✉️</div>
+    <div>
+      <h1>Sistema de <span class="gradient-text">Correos</span></h1>
+      <p>Envía correos con Gmail de forma rápida y sencilla</p>
+    </div>
+  </header>
+
+  <section class="stats">
+    <div class="stat purple">
+      <span class="stat-icon">📨</span>
+      <div>
+        <strong>{{ history().length }}</strong>
+        <small>Total</small>
+      </div>
+    </div>
+    <div class="stat green">
+      <span class="stat-icon">✅</span>
+      <div>
+        <strong>{{ sentCount() }}</strong>
+        <small>Enviados</small>
+      </div>
+    </div>
+    <div class="stat red">
+      <span class="stat-icon">⚠️</span>
+      <div>
+        <strong>{{ failedCount() }}</strong>
+        <small>Fallidos</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="dot pink"></span>Nuevo correo</h2>
+
+    @if (alert(); as a) {
+      <div class="alert" [class.success]="a.type === 'success'" [class.error]="a.type === 'error'">
+        <span>{{ a.type === 'success' ? '🎉' : '😕' }}</span>
+        <span>{{ a.text }}</span>
+        <button type="button" class="close" (click)="alert.set(null)" aria-label="Cerrar">×</button>
+      </div>
+    }
+
+    @if (templates().length > 0) {
+      <div class="field">
+        <span class="label">Usar una plantilla</span>
+        <div class="chips">
+          @for (t of templates(); track t.id; let i = $index) {
+            <button
+              type="button"
+              class="chip c{{ i % 5 }}"
+              [class.active]="selectedTemplate() === t.id"
+              (click)="applyTemplate(t)">
+              {{ t.name }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="send()">
+      <label class="field">
+        <span class="label">Para</span>
+        <input type="email" formControlName="to" placeholder="correo@ejemplo.com" [class.invalid]="invalid('to')" />
+        @if (invalid('to')) {
+          <small class="field-error">Ingresa un correo válido.</small>
+        }
+      </label>
+
+      <label class="field">
+        <span class="label">Asunto</span>
+        <input type="text" formControlName="subject" placeholder="¿De qué trata tu correo?" [class.invalid]="invalid('subject')" />
+        @if (invalid('subject')) {
+          <small class="field-error">El asunto es obligatorio (máx. 150 caracteres).</small>
+        }
+      </label>
+
+      <label class="field">
+        <span class="label">
+          Mensaje
+          <small class="counter">{{ form.controls.message.value.length }} / 10000</small>
+        </span>
+        <textarea formControlName="message" rows="7" placeholder="Escribe tu mensaje aquí..." [class.invalid]="invalid('message')"></textarea>
+        @if (invalid('message')) {
+          <small class="field-error">El mensaje es obligatorio.</small>
+        }
+      </label>
+
+      <button type="submit" class="send" [disabled]="sending()">
+        @if (sending()) {
+          <span class="spinner"></span> Enviando...
+        } @else {
+          🚀 Enviar correo
+        }
+      </button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2><span class="dot blue"></span>Historial</h2>
+    @if (history().length === 0) {
+      <div class="empty">
+        <div class="empty-icon">📭</div>
+        <p>Aún no has enviado correos.<br />¡Envía el primero!</p>
+      </div>
+    } @else {
+      <ul class="history">
+        @for (e of history(); track e.id) {
+          <li>
+            <div class="avatar" [style.background]="avatarColor(e.to)">{{ e.to.charAt(0).toUpperCase() }}</div>
+            <div class="info">
+              <strong>{{ e.subject }}</strong>
+              <small>{{ e.to }} · {{ e.sentAt | date: 'dd/MM/yyyy HH:mm' }}</small>
+            </div>
+            <span class="badge" [class.ok]="e.status === 'SENT'" [class.fail]="e.status === 'FAILED'" [title]="e.detail">
+              {{ e.status === 'SENT' ? 'Enviado' : 'Fallido' }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <footer>Hecho con 💜 · Angular + Spring Boot + Gmail</footer>
+</main>

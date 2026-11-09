@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: sistema-correos
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: MAIL_RELAY_URL
+        sync: false
+      - key: MAIL_RELAY_SECRET
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: Sistema de Correos
