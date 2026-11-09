@@ -60,8 +60,9 @@ public class EmailService {
         this.objectMapper = objectMapper;
         this.fromAddress = fromAddress;
         this.fromName = fromName;
-        this.relayUrl = relayUrl;
-        this.relaySecret = relaySecret;
+        // strip(): evita fallos por espacios o saltos de línea pegados en las variables de entorno
+        this.relayUrl = relayUrl.strip();
+        this.relaySecret = relaySecret.strip();
     }
 
     public EmailRecord send(EmailRequest request) {
